@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Individual</title>
+    <link rel="stylesheet" href="assets/style/style.css">
+    <link rel="stylesheet" href="assets/style/responsividade.css">
+    <script src="assets/scripts/menu-mobile.js" defer></script>
+    <script type="module" src="assets/scripts/form.js" defer></script>
+</head>
+<body>
+
+    <header>
+
+        <!-- contéudo do header -->
+        <div class="header-content">
+
+            <img class="logo" src="assets/img/logo.svg" alt="">
+
+            <div class="pagName">Controle Financeiro</div>
+
+            <div class="menus">
+
+                 <!-- menu desktop/tablet -->
+                <nav id="menu">
+
+                    <ul id="lista" class="menu-list">
+                        <div id="closeBtn">×</div>
+
+                        <li class="list-item">
+                            <a href="">Cadastro de Transações</a>
+                        </li>
+
+                        <li class="separador">|</li>
+
+                        <li class="list-item">
+                            <a id="btnClear" href="">Limpar Dados</a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- menu mobile -->
+                <nav id="menu-toggle">☰</nav>
+
+            </div>
+        </div>
+
+    </header>
+
+    <main>
+
+        <!-- formulário  para cadastrar as transações -->
+        <form id="form-transaction" class="form-transaction" action="">
+
+            <div class="form-tit form-item">Nova Transação</div>
+
+            <div class="form-item">
+
+                <label for="form-transaction-type">Tipo de Transação</label>
+                <select id="form-transaction-type">
+                    <option value="0">Compra</option>
+                    <option value="1">Venda</option>
+                </select>
+
+            </div>
+
+            <div class="form-item">
+                
+                <label for="form-transaction-product">Nome da mercadoria</label>
+                <input autocomplete="off"
+                type="text" id="form-transaction-product" 
+                placeholder="Mercadoria">
+
+            </div>
+
+            <div class="form-item">
+
+                <label for="form-transaction-value">Valor</label>
+                <input autocomplete="off" type="text" id="form-transaction-value" 
+                placeholder="R$ 00,00">
+
+            </div>
+
+            <input class="form-submit" type="submit" value="Adicionar transação">
+            
+        </form>
+
+        <!-- elemento que mostra os extratos -->
+        <div id="extrato" class="extrato">
+
+            <div class="extrato-tit">Extrato das Transações</div>
+
+            <div class="top-header">
+                <div>Mercadoria</div>
+                <div>Valor</div>
+            </div>
+
+            <div id="transactions">Nenhuma transação cadastrada</div>
+
+            <div class="bottom-header">
+                <div>Total</div>
+                <div id="resultado"></div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer>
+    </footer>
+    
+</body>
+</html>

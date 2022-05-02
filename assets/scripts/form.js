@@ -18,6 +18,7 @@
     const btnClear = get('btnClear')
 
     btnClear.onclick = e => {
+
         let rsp = confirm('Deseja apagar todos os dados?')
         if(rsp){ts.clear()}
     }

@@ -3,6 +3,161 @@
     import {get, create, insert, isArray, isString, moneyFormat} from './functions.js'
     const key = 'transactions'
 
+     // adiciona novos métodos para todo objeto e string
+     class ObjectManager{
+
+        constructor(){this.config()}
+
+        config(){
+
+            // converte um objeto para array
+            Object.prototype.toArray = function(){return Object.values(this)}
+
+            // compara se dois objetos são iguais usando um valor de chave como critério
+            Object.prototype.isEqual = function(obj2, key, caseSensitive=true, strict=true){
+
+                let valor1 = this[key]
+                let valor2 = obj2[key]
+
+                // diferencia o tipo e o valor
+                if(strict){
+                
+                    // caso sejam strings e não diferencia maiúsculas e minúsculas
+                    if(isString(valor1) && isString(valor2) && !caseSensitive)
+                        return valor1.toLowerCase() === valor2.toLowerCase()
+
+                    // caso sejam qualquer tipo de dado
+                    else
+                        return valor1 === valor2
+                }
+
+                // diferencia apenas o valor
+                else{
+
+                    // caso sejam strings e não diferencia maiúsculas e minúsculas
+                    if(isString(valor1) && isString(valor2) && !caseSensitive)
+                        return valor1.toLowerCase() == valor2.toLowerCase()
+                
+                    // caso sejam qualquer tipo de dado
+                    else
+                        return valor1 == valor2
+                }
+
+            }
+
+            // transforma um string monetária em número
+            String.prototype.toNumber = function(){
+
+                let num = this.replace(/[^\d\.,]/g, '')
+
+                let antesVirgula = num
+                    .match(/[\d+\.]+(?=,)/g)[0]
+                    .replace(/\.+/g, '')
+
+                let depoisVirgula = num
+                    .match(/,\d+/g)[0]
+                    .replace(/,+/, '.') 
+        
+                return Number(antesVirgula + depoisVirgula)
+            }
+                
+        }
+    }
+
+    // iniciando um classe já configurada
+    const objsConfig = new ObjectManager()
+
+    // adiciona novos métodos para o LocalStorage
+    class LocalStorageManager{
+
+        constructor(){
+            // config incial
+            this.config()
+        }
+
+        // adiciona novos métodos para o local storage
+        config(){
+
+            // salva um objeto na Local Storage
+            Storage.prototype.saveObj = function (key, obj){
+
+                if(!isObj(obj)) return false
+                let json = [JSON.stringify(obj)]
+                this.setItem(key, json)
+            }
+
+            // salva vários objetos na local storage em forma de array
+            Storage.prototype.saveObjs = function(key, ...objs){
+
+                if(objs.length == 1 && isArray(objs[0]))objs = objs[0]
+                let array = JSON.stringify(objs)
+                this.setItem(key, array)
+            }
+
+            // pega todos os objetos da local storage de uma determinada key
+            Storage.prototype.getObjs = function (key){
+
+                // verificando se algum valor para essa chave
+                let strObjArray = this.getItem(key)
+                if(!strObjArray) return null
+
+                // transformando cada string obj em array
+                let objArray = JSON.parse(strObjArray)
+                return objArray
+            }
+
+            // verifica se uma determinada chave existe no local storage
+            Storage.prototype.keyExists = function (key){
+                return this.getItem(key) ? true : false
+            }
+
+             // verifica se um determinado objeto existe no local storage
+             Storage.prototype.objExists = function(key, objComparado, objKey){
+
+                // verificando se a chave existe
+                if(!this.keyExists(key)) return null
+
+                let objs = this.getObjs(key)
+
+                for(let obj of objs){
+
+                    let resultado = objComparado.isEqual(obj, objKey, false)
+                    if(resultado) return true
+                }
+                return false
+            }
+
+            // verifica se vários objetos existem
+            Storage.prototype.objsExist = function(key, objs, objKey, cb){
+
+                if(!this.keyExists(key)) return null
+
+                // objetos que serão comparados
+                for(let obj of objs){
+                    let existe = this.objExists(key, obj, objKey)
+                    cb(obj, existe)
+                }
+
+            }
+
+            // atualizando array de objs
+            Storage.prototype.insertObjs = function (key, ...objs){
+
+                if(objs.length == 1 && isArray(objs[0])) objs = objs[0]
+
+                // verificando se a key existe
+                if(!this.keyExists(key)) return null
+
+                let arrayObjs = this.getObjs(key)
+                let novoArray = [...arrayObjs, ...objs]
+                this.saveObjs(key, novoArray)
+            }
+        }
+
+    }
+
+    // inciando a classe já configurada
+    const LSConfig = new LocalStorageManager
 
     // representa uma transação
     class Transaction{
@@ -165,131 +320,5 @@
             localStorage.clear()
         }
     }
-
-    // adiciona novos métodos para todo objeto e string
-    class ObjectManager{
-
-        constructor(){this.config()}
-
-        config(){
-
-            // converte um objeto para array
-            Object.prototype.toArray = function(){return Object.values(this)}
-
-            // compara se dois objetos são iguais usando um valor de chave como critério
-            Object.prototype.isEqual = function(obj2, key, caseSensitive=true, strict=true){
-
-                let valor1 = this[key]
-                let valor2 = obj2[key]
-
-                // diferencia o tipo e o valor
-                if(strict){
-                
-                    // caso sejam strings e não diferencia maiúsculas e minúsculas
-                    if(isString(valor1) && isString(valor2) && !caseSensitive)
-                        return valor1.toLowerCase() === valor2.toLowerCase()
-
-                    // caso sejam qualquer tipo de dado
-                    else
-                        return valor1 === valor2
-                }
-
-                // diferencia apenas o valor
-                else{
-
-                    // caso sejam strings e não diferencia maiúsculas e minúsculas
-                    if(isString(valor1) && isString(valor2) && !caseSensitive)
-                        return valor1.toLowerCase() == valor2.toLowerCase()
-                
-                    // caso sejam qualquer tipo de dado
-                    else
-                        return valor1 == valor2
-                }
-
-            }
-
-            // transforma um string monetária em número
-            String.prototype.toNumber = function(){
-
-                let num = this.replace(/[^\d\.,]/g, '')
-
-                let antesVirgula = num
-                    .match(/[\d+\.]+(?=,)/g)[0]
-                    .replace(/\.+/g, '')
-
-                let depoisVirgula = num
-                    .match(/,\d+/g)[0]
-                    .replace(/,+/, '.') 
-        
-                return Number(antesVirgula + depoisVirgula)
-            }
-                
-        }
-    }
-
-    // iniciando um classe já configurada
-    const objsConfig = new ObjectManager()
-
-    // adiciona novos métodos para o LocalStorage
-    class LocalStorageManager{
-
-        constructor(){
-            // config incial
-            this.config()
-        }
-
-        // adiciona novos métodos para o local storage
-        config(){
-
-            // salva um objeto na Local Storage
-            Storage.prototype.saveObj = function (key, obj){
-
-                if(!isObj(obj)) return false
-                let json = [JSON.stringify(obj)]
-                this.setItem(key, json)
-            }
-
-            // salva vários objetos na local storage em forma de array
-            Storage.prototype.saveObjs = function(key, ...objs){
-
-                if(objs.length == 1 && isArray(objs[0]))objs = objs[0]
-                let array = JSON.stringify(objs)
-                this.setItem(key, array)
-            }
-
-            // pega todos os objetos da local storage de uma determinada key
-            Storage.prototype.getObjs = function (key){
-
-                // verificando se algum valor para essa chave
-                let strObjArray = this.getItem(key)
-                if(!strObjArray) return null
-
-                // transformando cada string obj em array
-                let objArray = JSON.parse(strObjArray)
-                return objArray
-            }
-
-            Storage.prototype.keyExists = function (key){
-                return this.getItem(key) ? true : false
-            }
-
-            // atualizando array de objs
-            Storage.prototype.insertObjs = function (key, ...objs){
-
-                if(objs.length == 1 && isArray(objs[0])) objs = objs[0]
-
-                // verificando se a key existe
-                if(!this.keyExists(key)) return null
-
-                let arrayObjs = this.getObjs(key)
-                let novoArray = [...arrayObjs, ...objs]
-                this.saveObjs(key, novoArray)
-            }
-        }
-
-    }
-
-    // inciando a classe já configurada
-    const LSConfig = new LocalStorageManager
 
     export {key, Transaction, TransactionsManager, objsConfig, LSConfig}
